@@ -1,0 +1,82 @@
+*{
+margin:0px;
+padding: 0px;
+}
+
+section.container{
+    margin: 0px auto;
+    width: 80%;
+    padding: 2.5rem 0rem;
+}
+
+section.container form{
+    margin: 0rem auto 3rem;
+    width: 450px;
+    background-color: #f4c977;
+    box-shadow: 1px 3px 5px #ddd;
+    padding: 1rem;
+    border-radius: 3px;
+}
+section.container form h2{
+    text-align: left;
+    font-family: verdana;
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+section.container form hr {
+    border-color: #f9bb6c;
+}
+section.container form label{
+    display: block;
+    margin: 10px 0px;
+}
+section.container form input[type="submit"]{
+    border: none;
+    padding: 0.7rem 1.5rem;
+    display: block;
+    margin-top: 1.5rem;
+    background: green;
+    color: white;
+    border-radius: 3px;
+    border: 1px solid green;
+}
+section.container form input[type="submit"]:hover{
+    border: 1px solid #fff;
+    box-shadow: 1px 1px 1px 2px #e39e45;
+}
+
+
+section.container table {
+    width: 100%;
+    margin-bottom: 20px;
+    border: 1px solid  #f4c977;
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+section.container table thead{
+    background-color: #f4c977;
+}
+
+section.container table thead tr th{
+    color: rgba(0, 0, 0,.8);
+    font-weight: bold;
+}
+
+section.container table td, th{
+    border: 1px solid  #f4c977;
+    margin: 0;
+    padding: 5px;
+}
+
+section.container table th{
+    color: rgb(80, 79, 79);
+    font-size: 0.9em;
+}
+section.container table td{
+    color: rgb(80, 79, 79);
+    font-weight: 400;
+    font-size: 0.9em;
+}
+section.container table tr:nth-child(2n) td {
+    background: #e39e4561;
+}

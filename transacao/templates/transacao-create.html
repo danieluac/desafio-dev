@@ -1,10 +1,53 @@
 <!DOCTYPE html>
+{% load static %}
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Formulário de upload de ficheiro CNAB</title>
+    <link rel="stylesheet" href="{% static 'css/estilo.css' %}">
 </head>
 <body>
-
+    <main>
+        <section class="container">
+            <form action="" method="POST" enctype="multipart/form-data">
+                <h2>Faça o upload de seu ficheiro CNAB</h2>
+                <hr/>
+                <br/>
+                 {%csrf_token%}
+                <div class="coluna">
+                    <input type="file" accept=".txt" id="file_cnab" name="file_cnab"/>
+                    <input type="submit" value="Carregar">
+                </div>
+            </form>
+            <table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Tipo</th>
+      <th scope="col">Valor</th>
+      <th scope="col">Data</th>
+      <th scope="col">cpf</th>
+      <th scope="col">cartao</th>
+      <th scope="col">hora</th>
+      <th scope="col">Dono da loja</th>
+      <th scope="col">Loja</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for data in datas %}
+    <tr>
+      <th scope="row">{{data.tipo}}</th>
+      <td>{{data.valor}}</td>
+      <td>{{data.data}}</td>
+      <td>{{data.cpf}}</td>
+      <td>{{data.cartao}}</td>
+      <td>{{data.hora}}</td>
+      <td>{{data.dono_loja}}</td>
+      <td>{{data.loja}}</td>
+    </tr>
+   {% endfor %}
+  </tbody>
+</table>
+        </section>
+    </main>
 </body>
 </html>
