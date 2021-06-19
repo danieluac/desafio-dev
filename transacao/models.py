@@ -7,7 +7,6 @@ class Loja(models.Model):
     nome = models.CharField(max_length=100)
     cpf = models.CharField(max_length=14, null=True)
     representante = models.CharField(max_length=100, null=True)
-    # representante_id = models.ForeignKey(Beneficiario, on_delete=models.CASCADE)
 
 class Movimento(models.Model):
     valor = models.FloatField()
