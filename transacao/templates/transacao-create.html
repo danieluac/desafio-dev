@@ -35,14 +35,14 @@
   <tbody>
   {% for data in datas %}
     <tr>
-      <th scope="row">{{data.tipo}}</th>
+      <th scope="row">{{data.tipo }}</th>
       <td>{{data.valor}}</td>
-      <td>{{data.data}}</td>
-      <td>{{data.cpf}}</td>
+      <td>{{data.data_transacao}}</td>
+      <td>{{data.loja_id.representante_id.cpf}}</td>
       <td>{{data.cartao}}</td>
-      <td>{{data.hora}}</td>
-      <td>{{data.dono_loja}}</td>
-      <td>{{data.loja}}</td>
+      <td>{{data.hora_transacao}}</td>
+      <td>{{data.loja_id.representante_id.nome}}</td>
+      <td>{{data.loja_id.nome}}</td>
     </tr>
    {% endfor %}
   </tbody>
