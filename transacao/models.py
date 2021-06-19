@@ -2,16 +2,16 @@ from django.db import models
 # Create your models here.
 
 
-class Beneficiario(models.Model):
-    cpf = models.CharField(max_length=14)
-    nome = models.CharField(max_length=100)
 
 class Loja(models.Model):
     nome = models.CharField(max_length=100)
-    representante_id = models.ForeignKey(Beneficiario, on_delete=models.CASCADE)
+    cpf = models.CharField(max_length=14, null=True)
+    representante = models.CharField(max_length=100, null=True)
+    # representante_id = models.ForeignKey(Beneficiario, on_delete=models.CASCADE)
 
 class Movimento(models.Model):
     valor = models.FloatField()
+    saldo_actual = models.FloatField(null=True)
     loja_id = models.ForeignKey(Loja, on_delete=models.CASCADE)
     data_transacao = models.DateField()
     hora_transacao = models.TimeField()
@@ -50,3 +50,17 @@ class Movimento(models.Model):
                     valor = dado[indice]
                     break
             return valor
+    def calcula_saldo(self, saldo, operacao):
+        movimento = Movimento.objects.last()
+        saldo_actual = 0
+        if movimento:
+            if self.get_tipo(operacao) in ('D', 'C', 'RE', 'V', 'RT', 'RD'):
+                saldo_actual = movimento.saldo_actual + float(saldo)
+            elif self.get_tipo(operacao) in ('B', 'F', 'A'):
+                saldo_actual = movimento.saldo_actual - float(saldo)
+        else:
+            if self.get_tipo(operacao) in ('D', 'C', 'RE', 'V', 'RT', 'RD'):
+                saldo_actual = float(saldo)
+            elif self.get_tipo(operacao) in ('B', 'F', 'A'):
+                saldo_actual = - float(saldo)
+        return saldo_actual

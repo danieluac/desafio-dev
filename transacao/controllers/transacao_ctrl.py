@@ -2,7 +2,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.views import View
 from django.core.files.uploadedfile import InMemoryUploadedFile
-from transacao.models import Beneficiario, Loja, Movimento
+from transacao.models import Loja, Movimento
 
 
 class TransacaoController(View):
@@ -15,7 +15,6 @@ class TransacaoController(View):
         return render(request, self.template_name, context)
 
     def post(self, request, *args, **kwargs):
-        transacao_data = []
         if request.method == 'POST':
             file_cnab = request.FILES['file_cnab']
             if not isinstance(file_cnab, InMemoryUploadedFile) or not file_cnab.name.endswith(
@@ -24,11 +23,11 @@ class TransacaoController(View):
             transacao_data = self.normaliza_dados(file_cnab)
             Movimento.objects.all().delete()
             Loja.objects.all().delete()
-            Beneficiario.objects.all().delete()
             self.salvar_dados(transacao_data)
-            print(Movimento.objects.all())
+
         context = {
-            'datas': Movimento.objects.all(),
+            'movimentos': Movimento.objects.all(),
+            'lojas': Loja.objects.all(),
             'self_ctrl': self
         }
         return render(request, self.template_name, context)
@@ -41,7 +40,6 @@ class TransacaoController(View):
                 dados.append({
                     'tipo': texto[0:1],
                     'data': texto[1:9][0:4] + "-" + texto[1:9][4:6] + "-" + texto[1:9][6:8],
-                    # 'valor': int(texto[9:19]) / 100.00,
                     'valor': texto[9:19],
                     'cpf': texto[19:30],
                     'cartao': texto[30:42],
@@ -54,17 +52,26 @@ class TransacaoController(View):
     def salvar_dados(self, dados):
 
         for dado in dados:
-            beneficiario = Beneficiario()
-            beneficiario.cpf = dado['cpf']
-            beneficiario.nome = dado['dono_loja']
-            beneficiario.save()
-            loja = Loja()
-            loja.representante_id = Beneficiario.objects.last()
-            loja.nome = dado['loja']
-            loja = loja.save()
+            loja_id = None
+            try:
+                loja_id = Loja.objects.get(cpf=dado['cpf'])
+            except:
+                pass
+
+            if not loja_id:
+                loja = Loja()
+                loja.representante = dado['dono_loja']
+                loja.cpf = dado['cpf']
+                loja.nome = dado['loja']
+                loja.save()
+                loja_id = Loja.objects.last()
+
             movimento = Movimento()
-            movimento.valor = (int(dado['valor']) / 100.00)
-            movimento.loja_id = Loja.objects.last()
+            # normaliza o valor recebido
+            saldo = (float(dado['valor']) / 100.00)
+            movimento.valor = saldo
+            movimento.saldo_actual = movimento.calcula_saldo(saldo, dado['tipo'])
+            movimento.loja_id = loja_id
             movimento.cartao = dado['cartao']
             movimento.tipo = movimento.get_tipo(dado['tipo'])
             movimento.data_transacao = dado['data']
