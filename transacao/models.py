@@ -29,6 +29,7 @@ class Movimento(models.Model):
     tipo = models.CharField(choices=TIPO, max_length=2)
 
     def get_tipo(self, tipo, e_numero=True, indice='value'):
+        """ Este método recupera o tipo da transação ao se efectuar um movimento ou consulta de movimento """
         tipos = []
         tipos.append({'nome': 'Debito', 'value': 'D'})
         tipos.append({'nome': 'Credito', 'value': 'C'})
@@ -49,8 +50,12 @@ class Movimento(models.Model):
                     valor = dado[indice]
                     break
             return valor
-    def calcula_saldo(self, saldo, operacao):
-        movimento = Movimento.objects.last()
+    def calcula_saldo_importado(self,loja_id, saldo, operacao):
+        """ Este método calcula o saldo actual, ao cadastrar um movimento vindo de um ficheiro CNAB"""
+        try:
+            movimento = Movimento.objects.filter(loja_id=loja_id).order_by('-id')[0]
+        except:
+            movimento = None
         saldo_actual = 0
         if movimento:
             if self.get_tipo(operacao) in ('D', 'C', 'RE', 'V', 'RT', 'RD'):
@@ -62,4 +67,22 @@ class Movimento(models.Model):
                 saldo_actual = float(saldo)
             elif self.get_tipo(operacao) in ('B', 'F', 'A'):
                 saldo_actual = - float(saldo)
+
+        return saldo_actual
+
+    def calcula_saldo_total_existente(self, loja = 'ALL'):
+        """ Este método calcula o saldo currente total existente em movimento, de todas as lojas ou por loja """
+        if loja is not 'ALL':
+            movimentos = Movimento.objects.get(loja_id = loja)
+        else:
+            movimentos = Movimento.objects.all()
+
+        saldo_actual = 0
+        if movimentos:
+            for movimento in movimentos:
+                if movimento.tipo in ('D', 'C', 'RE', 'V', 'RT', 'RD'):
+                    saldo_actual = saldo_actual + float(movimento.valor)
+                elif movimento.tipo in ('B', 'F', 'A'):
+                    saldo_actual = saldo_actual - float(movimento.valor)
+
         return saldo_actual
