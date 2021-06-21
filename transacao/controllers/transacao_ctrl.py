@@ -4,13 +4,28 @@ from django.views import View
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from transacao.models import Loja, Movimento
 
+from transacao.funcoes_extras import calcula_saldo_total_existente
+
 
 class TransacaoController(View):
     template_name = 'transacao-create.html'
 
     def get(self, request, *args, **kwargs):
+        if 'error_message' in request.session:
+            error_message = request.session['error_message']
+            del request.session['error_message']
+        else:
+            error_message = False
+
+        if 'success_message' in request.session:
+            success_message = request.session['success_message']
+            del request.session['success_message']
+        else:
+            success_message = False
+
         context = {
-            'datas': []
+            'error_msg': error_message,
+            'success_message': success_message
         }
         return render(request, self.template_name, context)
 
@@ -19,20 +34,19 @@ class TransacaoController(View):
             file_cnab = request.FILES['file_cnab']
             if not isinstance(file_cnab, InMemoryUploadedFile) or not file_cnab.name.endswith(
                     '.txt') or file_cnab.content_type != 'text/plain':
-                raise Exception("faça correctamente o carregamento do ficheiro CNAB.txt")
-            transacao_data = self.normaliza_dados(file_cnab)
-            Movimento.objects.all().delete()
-            Loja.objects.all().delete()
-            self.salvar_dados(transacao_data)
+                request.session['error_message'] = 'Deve adicionar um ficheiro CNAB.txt válido...'
 
-        context = {
-            'movimentos': Movimento.objects.all(),
-            'lojas': Loja.objects.all(),
-            'self_ctrl': self
-        }
-        return render(request, self.template_name, context)
+            # Movimento.objects.all().delete()
+            # Loja.objects.all().delete()
+            self.salvar_dados(self.normaliza_dados(file_cnab))
+            request.session['success_message'] = 'ficheiro carregado e parseado com sucesso...'
+
+        return HttpResponseRedirect('/transacao')
 
     def normaliza_dados(self, ficheiro):
+        """ Este metódo normaliza os dados recebidos de um ficheiro CNAB,
+        organiza-os em um formato de fácil entendimento e retorna uma lista dessses dados
+        """
         dados = []
         if isinstance(ficheiro, InMemoryUploadedFile):
             for linha in ficheiro.readlines():
@@ -50,27 +64,36 @@ class TransacaoController(View):
         return dados
 
     def salvar_dados(self, dados):
-
+        """Este metódo salva os movimentos no banco de dados a quando a importação de um ficheiro CNAB
+             dados = {
+                'tipo': '1',
+                'data': '2021-06-19',
+                'valor': 123.45,
+                'cpf': 12394320548,
+                'cartao': '32023***2333',
+                'hora': '12:30:00',
+                'dono_loja': 'exemplo daniel u ac',
+                'loja': 'Exemplo U AC',
+            }
+        """
         for dado in dados:
             loja_id = None
             try:
                 loja_id = Loja.objects.get(cpf=dado['cpf'])
             except:
                 pass
-
             if not loja_id:
                 loja = Loja()
                 loja.representante = dado['dono_loja']
                 loja.cpf = dado['cpf']
                 loja.nome = dado['loja']
                 loja.save()
-                loja_id = Loja.objects.last()
+                loja_id = Loja.objects.get(cpf=dado['cpf'])
 
+            saldo = format((float(dado['valor']) / 100.00), '.2f')
             movimento = Movimento()
-            # normaliza o valor recebido
-            saldo = (float(dado['valor']) / 100.00)
             movimento.valor = saldo
-            movimento.saldo_actual = movimento.calcula_saldo(saldo, dado['tipo'])
+            movimento.saldo_actual = format(movimento.calcula_saldo_importado(loja_id.id, saldo, dado['tipo']), '.2f')
             movimento.loja_id = loja_id
             movimento.cartao = dado['cartao']
             movimento.tipo = movimento.get_tipo(dado['tipo'])
@@ -78,3 +101,19 @@ class TransacaoController(View):
             movimento.hora_transacao = dado['hora']
             movimento.save()
 
+def lista_movimentosCtrl(request):
+    """ permite listar movimento de loja por loja e de todas as lojas"""
+    if 'loja_id' in request.GET and request.GET['loja_id'] != 'ALL':
+        movimentos = Movimento.objects.filter(loja_id=request.GET['loja_id'])
+        total = calcula_saldo_total_existente(movimentos)
+    else:
+        movimentos = Movimento.objects.all()
+        total = False
+
+    context = {
+        'movimentos': movimentos,
+        'lojas': Loja.objects.all(),
+        'total': format(total, '.2f') if total is not False else False,
+        "default_loja_id": 'All' if not 'loja_id' in request.GET or ('loja_id' in request.GET and request.GET['loja_id'] == 'ALL') else int(request.GET['loja_id'])
+    }
+    return render(request, "transacao-lista.html", context)
