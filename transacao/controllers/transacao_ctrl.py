@@ -39,8 +39,10 @@ class TransacaoController(View):
 
             # Movimento.objects.all().delete()
             # Loja.objects.all().delete()
-            self.salvar_dados(self.normaliza_dados(file_cnab))
-            request.session['success_message'] = 'ficheiro carregado e parseado com sucesso...'
+            if self.salvar_dados(self.normaliza_dados(file_cnab)):
+                request.session['success_message'] = 'ficheiro carregado e parseado com sucesso...'
+            else:
+                request.session['error_message'] = 'Deve adicionar um ficheiro CNAB válido...'
 
         return HttpResponseRedirect('/transacao')
 
@@ -91,16 +93,23 @@ class TransacaoController(View):
                 loja.save()
                 loja_id = Loja.objects.get(cpf=dado['cpf'])
 
-            saldo = format((float(dado['valor']) / 100.00), '.2f')
-            movimento = Movimento()
-            movimento.valor = saldo
-            movimento.saldo_actual = format(movimento.calcula_saldo_importado(loja_id.id, saldo, dado['tipo']), '.2f')
-            movimento.loja_id = loja_id
-            movimento.cartao = dado['cartao']
-            movimento.tipo = movimento.get_tipo(dado['tipo'])
-            movimento.data_transacao = dado['data']
-            movimento.hora_transacao = dado['hora']
-            movimento.save()
+            try:
+                saldo = format((float(dado['valor']) / 100.00), '.2f')
+                movimento = Movimento()
+                movimento.valor = saldo
+                movimento.saldo_actual = format(movimento.calcula_saldo_importado(loja_id.id, saldo, dado['tipo']),
+                                                '.2f')
+                movimento.loja_id = loja_id
+                movimento.cartao = dado['cartao']
+                movimento.tipo = movimento.get_tipo(dado['tipo'])
+                movimento.data_transacao = dado['data']
+                movimento.hora_transacao = dado['hora']
+                movimento.save()
+            except ValueError:
+                return False
+        return True
+
+
 
 def lista_movimentosCtrl(request):
     """ permite listar movimento de loja por loja e de todas as lojas"""
