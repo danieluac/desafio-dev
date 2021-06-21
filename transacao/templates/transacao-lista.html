@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Formulário de upload de ficheiro CNAB</title>
+    <link rel="stylesheet" href="{% static 'css/estilo.css' %}">
+</head>
+<body>
+<main>
+    <section class="container">
+        <a href="/transacao" class="btn-a">Importar ficheiro CNAB</a>
+        <br>
+        <form class="form-select" action="/transacao/index" method="GET">
+            <label>Filtrar por loja</label>
+            {%csrf_token%}
+            <div class="coluna">
+                <select required="" name="loja_id" id="">
+                    <option value="ALL" >Listar todas lojas</option>
+                    {% for data in lojas %}
+                        {% if default_loja_id == data.id %}
+                         <option selected="" value="{{data.id}}">{{data.nome}}</option>
+                        {% else %}
+                         <option value="{{data.id}}">{{data.nome}}</option>
+                        {%endif%}
+                    {% endfor %}
+                </select>
+                <input type="submit" value="Listar">
+            </div>
+        </form>
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col" colspan="9">Movimentos</th>
+            </tr>
+            <tr>
+                <th scope="col">Data</th>
+                <th scope="col">Hora</th>
+                <th scope="col">Loja</th>
+                <th scope="col">CPF</th>
+                <th scope="col">Representante</th>
+                <th scope="col">Cartão</th>
+                <th scope="col">Tipo de Transação</th>
+                <th scope="col">Montante</th>
+                <th scope="col">Saldo depois do movimento</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for data in movimentos %}
+            <tr>
+                <td>{{data.data_transacao}}</td>
+                <td>{{data.hora_transacao}}</td>
+                <td>{{data.loja_id.nome}}</td>
+                <td>{{data.loja_id.cpf}}</td>
+                <td>{{data.loja_id.representante}}</td>
+                <td>{{data.cartao}}</td>
+                <td>{{data.get_tipo_display }}</td>
+                <td>{{data.valor}}</td>
+                <th scope="row">{{data.saldo_actual}}</th>
+            </tr>
+            {% endfor %}
+            {% if total %}
+            <tr>
+                <td colspan="8">TOTAL</td>
+                <th scope="row">{{total}}</th>
+            </tr>
+            {%endif%}
+            </tbody>
+        </table>
+    </section>
+</main>
+</body>
+</html>
