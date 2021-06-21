@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+{% load i18n %}
 {% load static %}
 <html lang="en">
 <head>
@@ -9,72 +10,26 @@
 <body>
 <main>
     <section class="container">
-        <form action="" method="POST" enctype="multipart/form-data">
+        <a href="/transacao/index" class="btn-a">Ver lista de movimento importados</a>
+        <br>
+        {% if success_message %}
+        <h3> {{success_message}} </h3>
+        {% endif %}
+
+        <form class="form-upload" action="" method="POST" enctype="multipart/form-data">
             <h2>Faça o upload de seu ficheiro CNAB</h2>
             <hr/>
             <br/>
             {%csrf_token%}
             <div class="coluna">
-                <input type="file" accept=".txt" id="file_cnab" name="file_cnab"/>
+                {% if error_msg %}
+                <p style="color:red;background-color:white;padding: 10px"> * {{error_msg}} </p>
+                <br>
+                {% endif %}
+                <input required type="file" accept=".txt" id="file_cnab" name="file_cnab"/>
                 <input type="submit" value="Carregar">
             </div>
         </form>
-        <table class="table">
-            <thead>
-             <tr>
-                 <th scope="col" colspan="9">Movimentos</th>
-            </tr>
-            <tr>
-                 <th scope="col">Data</th>
-                 <th scope="col">Hora</th>
-                <th scope="col">Loja</th>
-                  <th scope="col">CPF</th>
-                 <th scope="col">Representante</th>
-                 <th scope="col">Cartão</th>
-                <th scope="col">Tipo de Transação</th>
-                <th scope="col">Montante</th>
-                <th scope="col">Saldo depois do movimento</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for data in movimentos %}
-            <tr>
-                <td >{{data.data_transacao}}</td>
-                <td>{{data.hora_transacao}}</td>
-                <td>{{data.loja_id.nome}}</td>
-                <td>{{data.loja_id.cpf}}</td>
-                <td>{{data.loja_id.representante}}</td>
-                <td>{{data.cartao}}</td>
-                <td>{{data.get_tipo_display }}</td>
-                 <td>{{data.valor}}</td>
-                <th scope="row">{{data.saldo_actual}}</th>
-            </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-        <table class="table">
-            <thead>
-             <tr>
-                 <th scope="col" colspan="4">Lojas</th>
-            </tr>
-            <tr>
-                 <th scope="col">Id</th>
-                 <th scope="col">Nome</th>
-                 <th scope="col">CPF</th>
-                 <th scope="col">Representante</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for data in lojas %}
-            <tr>
-                <td >{{data.id}}</td>
-                <td>{{data.nome}}</td>
-                <td>{{data.cpf}}</td>
-                <td>{{data.representante}}</td>
-            </tr>
-            {% endfor %}
-            </tbody>
-        </table>
     </section>
 </main>
 </body>
