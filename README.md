@@ -19,11 +19,13 @@ Este desafio usa as seguintes tecnologias:
 
 
 - Configurar o dados de acesso ao banco de dados no ficheiro especificado a seguir:
+  
+<code>
+  
 
-  <code>
- - desafio-dev/
-   - core/
-   - settings.py 
+    desafio-dev/
+        core/
+            settings.py 
      
 ---- DATABASES = { 
 
