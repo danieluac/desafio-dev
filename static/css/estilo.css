@@ -1,6 +1,7 @@
 *{
 margin:0px;
 padding: 0px;
+font-family: verdana;
 }
 
 section.container{
@@ -9,8 +10,8 @@ section.container{
     padding: 2.5rem 0rem;
 }
 
-section.container form{
-    margin: 0rem auto 3rem;
+section.container form.form-upload{
+   /* margin: 0rem auto 3rem; */
     width: 450px;
     background-color: #f4c977;
     box-shadow: 1px 3px 5px #ddd;
@@ -30,19 +31,38 @@ section.container form label{
     display: block;
     margin: 10px 0px;
 }
+section.container form select,
+section.container a.btn-a,
 section.container form input[type="submit"]{
-    border: none;
     padding: 0.7rem 1.5rem;
-    display: block;
-    margin-top: 1.5rem;
-    background: green;
     color: white;
     border-radius: 3px;
     border: 1px solid green;
 }
+section.container form select{
+    color: black !important;
+}
+section.container h3{
+    color:green;
+    text-align:left;
+    margin-top: 0.5rem;
+}
+section.container a.btn-a{
+    background: #e39e45;
+    /*width: 285px;*/
+    text-decoration: none;
+    display: inline-block;
+    margin-bottom: 0.5rem;
+}
+section.container form input[type="submit"]{
+    background: green;
+    margin: 1.5rem 0rem;
+    display: block;
+}
+section.container a.btn-a:hover,
 section.container form input[type="submit"]:hover{
     border: 1px solid #fff;
-    box-shadow: 1px 1px 1px 2px #e39e45;
+    box-shadow: 1px 1px 90px 4px #e39e45;
 }
 
 
