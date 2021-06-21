@@ -40,6 +40,9 @@ class RequestTestCase(TestCase):
 
     def test_file_upload(self):
         """Verifica se o upload de ficheiro ocorreu com sucesso"""
-        self.assertEqual(self.reposta_upload_ficheiro.status_code, 200)
+        if self.reposta_upload_ficheiro.status_code == 400:
+            self.assertEqual(self.reposta_upload_ficheiro.content, bytes('Deve adicionar um ficheiro CNAB válido... <a href="/">clique aqui</a>', 'utf-8'))
+        else:
+            self.assertEqual(self.reposta_upload_ficheiro.status_code, 302)
 
 

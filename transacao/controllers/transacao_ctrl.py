@@ -1,4 +1,4 @@
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponseBadRequest
 from django.shortcuts import render
 from django.views import View
 from django.core.files.uploadedfile import InMemoryUploadedFile
@@ -34,7 +34,8 @@ class TransacaoController(View):
             file_cnab = request.FILES['file_cnab']
             if not isinstance(file_cnab, InMemoryUploadedFile) or not file_cnab.name.endswith(
                     '.txt') or file_cnab.content_type != 'text/plain':
-                request.session['error_message'] = 'Deve adicionar um ficheiro CNAB.txt válido...'
+                request.session['error_message'] = 'Deve adicionar um ficheiro CNAB válido...'
+                return HttpResponseBadRequest('Deve adicionar um ficheiro CNAB válido... <a href="/">clique aqui</a>')
 
             # Movimento.objects.all().delete()
             # Loja.objects.all().delete()
